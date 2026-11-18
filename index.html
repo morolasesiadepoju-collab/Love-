@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>For You, Munachi 💌</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/great-vibes@5.0.0/index.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/cormorant-garamond@5.0.0/index.css"/>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/dancing-script@5.0.0/index.css"/>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:100%; height:100%; overflow:hidden; font-family:'Cormorant Garamond', serif; background:#0a0014; color:#fff; }
+
+  /* Canvas background */
+  #stars { position:fixed; inset:0; z-index:0; }
+
+  /* Scenes */
+  .scene {
+    position:fixed; inset:0;
+    display:flex; flex-direction:column;
+    align-items:center; justify-content:center;
+    padding:20px;
+    opacity:0; pointer-events:none;
+    transition: opacity 1.2s ease;
+    z-index:2;
+    text-align:center;
+  }
+  .scene.active { opacity:1; pointer-events:auto; }
+
+  /* Scene 1 - Intro */
+  #scene1 .envelope {
+    width: 160px; height: 120px;
+    background: linear-gradient(135deg, #ff4d6d, #c9184a);
+    position: relative;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 20px 60px rgba(255,77,109,0.5);
+    animation: float 3s ease-in-out infinite;
+    transition: transform 0.3s;
+  }
+  #scene1 .envelope:hover { transform: scale(1.08); }
+  #scene1 .envelope::before {
+    content:'';
+    position:absolute; top:0; left:0;
+    width:0; height:0;
+    border-left: 80px solid transparent;
+    border-right: 80px solid transparent;
+    border-top: 70px solid #a01340;
+    transform-origin: top;
+  }
+  #scene1 .envelope::after {
+    content:'💌';
+    position:absolute;
+    top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    font-size:40px;
+    z-index:2;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+  #scene1 h1 {
+    font-family:'Great Vibes', cursive;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    background: linear-gradient(135deg, #ffd1dc, #ff8fab, #ffb3c6);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-top: 30px;
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  @keyframes glow {
+    from { filter: drop-shadow(0 0 10px rgba(255,143,171,0.4)); }
+    to   { filter: drop-shadow(0 0 25px rgba(255,143,171,0.8)); }
+  }
+  #scene1 p {
+    margin-top: 15px;
+    font-size: 1.1rem;
+    color: #ffc8dd;
+    letter-spacing: 2px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity:0.6; }
+    50% { opacity:1; }
+  }
+
+  /* Scene 2 - Letter */
+  #scene2 {
+    background: radial-gradient(ellipse at center, rgba(120,0,50,0.3) 0%, transparent 70%);
+  }
+  .letter {
+    max-width: 700px;
+    padding: 40px 35px;
+    background: linear-gradient(135deg, rgba(255,255,255,0.04), rgba(255,192,203,0.08));
+    border: 1px solid rgba(255,192,203,0.25);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 60px rgba(255,105,180,0.2);
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  .letter::-webkit-scrollbar { width:6px; }
+  .letter::-webkit-scrollbar-thumb { background: rgba(255,192,203,0.4); border-radius:10px; }
+  .letter h2 {
+    font-family:'Dancing Script', cursive;
+    font-size: clamp(2rem, 5vw, 3rem);
+    color: #ffb3c6;
+    margin-bottom: 20px;
+  }
+  .letter p {
+    font-size: clamp(1rem, 2.2vw, 1.25rem);
+    line-height: 1.9;
+    color: #ffe5ec;
+    margin-bottom: 18px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.8s ease;
+  }
+  .letter p.visible { opacity:1; transform: translateY(0); }
+  .letter .signature {
+    font-family:'Great Vibes', cursive;
+    font-size: 2rem;
+    color: #ff8fab;
+    margin-top: 25px;
+    text-align: right;
+  }
+  .next-btn {
+    margin-top: 30px;
+    padding: 14px 40px;
+    background: linear-gradient(135deg, #ff4d6d, #c9184a);
+    border:none;
+    color:white;
+    font-family:'Cormorant Garamond', serif;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    border-radius: 50px;
+    cursor:pointer;
+    box-shadow: 0 10px 30px rgba(255,77,109,0.4);
+    transition: all 0.3s;
+  }
+  .next-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(255,77,109,0.6); }
+
+  /* Scene 3 - The Question */
+  #scene3 {
+    background: radial-gradient(ellipse at center, rgba(180,0,80,0.3) 0%, transparent 70%);
+  }
+  #scene3 .question-wrap {
+    max-width: 700px;
+    padding: 40px;
+  }
+  #scene3 h2 {
+    font-family:'Great Vibes', cursive;
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    background: linear-gradient(135deg, #ffd700, #ffb3c6, #ff6b9d);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    margin-bottom: 20px;
+    animation: shimmer 3s ease-in-out infinite;
+  }
+  @keyframes shimmer {
+    0%,100% { filter: drop-shadow(0 0 15px rgba(255,215,0,0.4)); }
+    50% { filter: drop-shadow(0 0 35px rgba(255,107,157,0.8)); }
+  }
+  #scene3 .the-question {
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
+    color: #ffe5ec;
+    line-height: 1.7;
+    margin: 30px 0;
+    font-style: italic;
+  }
+  .btn-row {
+    display:flex;
+    gap: 25px;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap;
+    margin-top: 40px;
+    position: relative;
+    min-height: 80px;
+  }
+  .yes-btn, .no-btn {
+    padding: 18px 50px;
+    border:none;
+    border-radius: 50px;
+    font-family:'Cormorant Garamond', serif;
+    font-size: 1.3rem;
+    font-weight: 600;
+    letter-spacing: 3px;
+    cursor:pointer;
+    transition: all 0.3s;
+  }
+  .yes-btn {
+    background: linear-gradient(135deg, #ff4d6d, #ff006e);
+    color:white;
+    box-shadow: 0 10px 40px rgba(255,0,110,0.5);
+  }
+  .yes-btn:hover { transform: scale(1.1); box-shadow: 0 15px 50px rgba(255,0,110,0.8); }
+  .no-btn {
+    background: rgba(255,255,255,0.1);
+    color:#ffc8dd;
+    border: 1px solid rgba(255,192,203,0.3);
+    position: relative;
+    transition: all 0.2s;
+  }
+
+  /* Scene 4 - Celebration */
+  #scene4 {
+    background: radial-gradient(ellipse at center, rgba(255,105,180,0.3) 0%, transparent 70%);
+  }
+  #scene4 h1 {
+    font-family:'Great Vibes', cursive;
+    font-size: clamp(3rem, 9vw, 7rem);
+    background: linear-gradient(135deg, #ffd700, #ff6b9d, #ff006e, #ffd700);
+    background-size: 200% 200%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    animation: rainbow 3s ease infinite;
+  }
+  @keyframes rainbow {
+    0%,100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  #scene4 p {
+    font-size: clamp(1.1rem, 2.5vw, 1.5rem);
+    color: #ffe5ec;
+    margin-top: 20px;
+    max-width: 600px;
+    line-height: 1.7;
+  }
+  #scene4 .heart-big {
+    font-size: 5rem;
+    animation: heartbeat 1.2s ease-in-out infinite;
+    margin-top: 20px;
+  }
+  @keyframes heartbeat {
+    0%,100% { transform: scale(1); }
+    25% { transform: scale(1.15); }
+    50% { transform: scale(1); }
+    75% { transform: scale(1.1); }
+  }
+
+  /* Floating petals */
+  .petal {
+    position: fixed;
+    top: -50px;
+    font-size: 20px;
+    pointer-events:none;
+    z-index:1;
+    animation: fall linear infinite;
+  }
+  @keyframes fall {
+    0% { transform: translateY(-50px) rotate(0deg); opacity:0; }
+    10% { opacity:1; }
+    90% { opacity:1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity:0; }
+  }
+
+  /* Confetti */
+  .confetti {
+    position: fixed;
+    width: 10px; height: 10px;
+    top: -10px;
+    z-index: 10;
+    pointer-events:none;
+    animation: confettiFall linear forwards;
+  }
+  @keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity:1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity:0; }
+  }
+
+  @media (max-width: 600px) {
+    .letter { padding: 25px 20px; }
+    .yes-btn, .no-btn { padding: 14px 35px; font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<!-- Scene 1: Envelope Intro -->
+<div class="scene active" id="scene1">
+  <div class="envelope" onclick="goToScene(2)"></div>
+  <h1>A Letter For You, Munachi</h1>
+  <p>— tap the envelope to open —</p>
+</div>
+
+<!-- Scene 2: The Letter -->
+<div class="scene" id="scene2">
+  <div class="letter">
+    <h2>Dearest Munachi,</h2>
+    <p>You mean a lot to me... more than I've probably ever said out loud.</p>
+    <p>I love the connection we share — every moment with you feels special, and knowing you're in my life gives me the joy of little children.</p>
+    <p>I may not always have the perfect words, or the perfect reactions to situations... but I want you to know, deeply and truly, how much you mean to me.</p>
+    <p>I feel this has been a long time coming, and it's best to put a title on this beautiful thing between us.</p>
+    <p>So I have just one question for you...</p>
+    <div class="signature">— Yours, Ise 💕</div>
+  </div>
+  <button class="next-btn" onclick="goToScene(3)">Continue →</button>
+</div>
+
+<!-- Scene 3: The Question -->
+<div class="scene" id="scene3">
+  <div class="question-wrap">
+    <h2>Munachi...</h2>
+    <p class="the-question">
+      Can I be your boyfriend?
+    </p>
+    <div class="btn-row">
+      <button class="yes-btn" onclick="sayYes()">YES 💖</button>
+      <button class="no-btn" id="noBtn">NO</button>
+    </div>
+  </div>
+</div>
+
+<!-- Scene 4: Celebration -->
+<div class="scene" id="scene4">
+  <div class="heart-big">💖</div>
+  <h1>She Said Yes!</h1>
+  <p>
+    And so begins the most beautiful chapter of all.<br>
+    Here's to you and Munachi — to every tomorrow, hand in hand. 🌹
+  </p>
+</div>
+
+<script>
+  // ===== Starry Canvas Background =====
+  const canvas = document.getElementById('stars');
+  const ctx = canvas.getContext('2d');
+  let stars = [];
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    stars = [];
+    const count = Math.floor((canvas.width * canvas.height) / 4000);
+    for (let i = 0; i < count; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        r: Math.random() * 1.5 + 0.3,
+        a: Math.random(),
+        s: Math.random() * 0.02 + 0.005
+      });
+    }
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function drawStars() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Gradient background
+    const grad = ctx.createRadialGradient(
+      canvas.width/2, canvas.height/2, 100,
+      canvas.width/2, canvas.height/2, Math.max(canvas.width, canvas.height)
+    );
+    grad.addColorStop(0, '#1a0030');
+    grad.addColorStop(0.5, '#0f0020');
+    grad.addColorStop(1, '#050010');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    stars.forEach(s => {
+      s.a += s.s;
+      const alpha = (Math.sin(s.a) + 1) / 2;
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255, 220, 240, ${alpha})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(drawStars);
+  }
+  drawStars();
+
+  // ===== Floating Petals =====
+  const petalEmojis = ['🌸', '💗', '🌹', '✨', '💕'];
+  function spawnPetal() {
+    const p = document.createElement('div');
+    p.className = 'petal';
+    p.textContent = petalEmojis[Math.floor(Math.random() * petalEmojis.length)];
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.fontSize = (Math.random() * 15 + 15) + 'px';
+    const dur = Math.random() * 6 + 8;
+    p.style.animationDuration = dur + 's';
+    p.style.opacity = Math.random() * 0.5 + 0.5;
+    document.body.appendChild(p);
+    setTimeout(() => p.remove(), dur * 1000);
+  }
+  setInterval(spawnPetal, 600);
+
+  // ===== Scene Navigation =====
+  function goToScene(n) {
+    document.querySelectorAll('.scene').forEach(s => s.classList.remove('active'));
+    document.getElementById('scene' + n).classList.add('active');
+    if (n === 2) revealLetter();
+  }
+
+  function revealLetter() {
+    const paragraphs = document.querySelectorAll('#scene2 .letter p');
+    paragraphs.forEach((p, i) => {
+      setTimeout(() => p.classList.add('visible'), 400 * (i + 1));
+    });
+  }
+
+  // ===== Dodging "No" Button =====
+  const noBtn = document.getElementById('noBtn');
+  const messages = [
+    "Are you sure? 🥺",
+    "Think again... 💭",
+    "Please? 🙏",
+    "Look at the stars for me ✨",
+    "My heart can't take it 💔",
+    "Just say yes! 💖"
+  ];
+  let msgIdx = 0;
+
+  function moveNoBtn() {
+    const row = noBtn.parentElement;
+    const rect = row.getBoundingClientRect();
+    const maxX = window.innerWidth - noBtn.offsetWidth - 20;
+    const maxY = window.innerHeight - noBtn.offsetHeight - 20;
+    const newX = Math.random() * maxX;
+    const newY = Math.random() * maxY;
+    noBtn.style.position = 'fixed';
+    noBtn.style.left = newX + 'px';
+    noBtn.style.top = newY + 'px';
+    noBtn.textContent = messages[msgIdx % messages.length];
+    msgIdx++;
+  }
+
+  noBtn.addEventListener('mouseover', moveNoBtn);
+  noBtn.addEventListener('touchstart', (e) => { e.preventDefault(); moveNoBtn(); });
+  noBtn.addEventListener('click', moveNoBtn);
+
+  // ===== Say Yes - Celebration =====
+  function sayYes() {
+    goToScene(4);
+    launchConfetti();
+    // Continuous confetti
+    const interval = setInterval(launchConfetti, 800);
+    setTimeout(() => clearInterval(interval), 8000);
+  }
+
+  function launchConfetti() {
+    const colors = ['#ff4d6d', '#ffd700', '#ff6b9d', '#ff006e', '#ffb3c6', '#ffffff'];
+    for (let i = 0; i < 60; i++) {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.width = (Math.random() * 8 + 6) + 'px';
+      c.style.height = (Math.random() * 8 + 6) + 'px';
+      c.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+      const dur = Math.random() * 2 + 2;
+      c.style.animationDuration = dur + 's';
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), dur * 1000);
+    }
+  }
+</script>
+</body>
+</html>
